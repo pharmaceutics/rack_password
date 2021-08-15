@@ -1,0 +1,38 @@
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@1.1.4
+
+jobs:
+  test:
+    resource_class: small
+    executor:
+      name: ruby/default
+      tag: << parameters.ruby-version >>
+    parameters:
+      ruby-version:
+        type: string
+      gemfile:
+        type: string
+    steps:
+      - checkout
+      - run: bundle install --gemfile=<< parameters.gemfile >>
+      - run: bundle exec --gemfile=<< parameters.gemfile >> rspec
+
+workflows:
+  all-tests:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              ruby-version:
+                - '3.0'
+                - '2.7'
+                - '2.6'
+                - '2.5'
+                - '2.4'
+              gemfile:
+                - Gemfile
+                - gemfiles/rack2.gemfile
+                - gemfiles/rack1.gemfile
+                - gemfiles/rack0.gemfile
